@@ -1,0 +1,18 @@
+.{
+    .name = "zlugify",
+    .version = "1.0.0",
+
+    .dependencies = .{
+        .@"anyascii.zig" = .{
+            .url = "https://code.zeptotech.net/zedd/anyascii.zig/archive/v1.1.1.tar.gz",
+            .hash = "1220800d403fc841a4c7b9d09ae8759ae28adff05de33836a3f69f02e8e0ac77bae9",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "README.md",
+    },
+}
