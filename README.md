@@ -14,7 +14,7 @@ _zlugify_ is a library to generate slugs from all types of UTF-8 encoded strings
 
 ## Versions
 
-ZRM 1.0.0 is made and tested with zig 0.13.0.
+zlugify 1.0.0 is made and tested with zig 0.13.0.
 
 ## How to use
 
