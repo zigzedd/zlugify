@@ -66,7 +66,7 @@ test slugify {
 	try testSlugify("toi-yeu-nhung-chu-ky-lan", "tôi yêu những chú kỳ lân");
 }
 /// Test slugify function.
-pub fn testSlugify(expected: []const u8, toSlugify: []const u8) !void {
+fn testSlugify(expected: []const u8, toSlugify: []const u8) !void {
 	const slug = try slugify(std.testing.allocator, toSlugify);
 	defer std.testing.allocator.free(slug);
 
@@ -77,7 +77,7 @@ test slugifySeparator {
 	try testSlugifySeparator("something_else", "SôMÈThing   \t    ÉLSÈ", '_');
 }
 /// Test slugifySeparator function.
-pub fn testSlugifySeparator(expected: []const u8, toSlugify: []const u8, separator: u8) !void {
+fn testSlugifySeparator(expected: []const u8, toSlugify: []const u8, separator: u8) !void {
 	const slug = try slugifySeparator(std.testing.allocator, toSlugify, separator);
 	defer std.testing.allocator.free(slug);
 
