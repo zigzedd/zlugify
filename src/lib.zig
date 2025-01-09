@@ -1,22 +1,26 @@
 const std = @import("std");
 const anyascii = @import("anyascii");
 
+/// The values to strip when trimming the string.
+const valuesToStrip = " \t\r\n\'\"/\\";
+
 /// Convert the provided string to a slugged version of it.
 /// With this function, you can set the separator to use.
 pub fn slugifySeparator(allocator: std.mem.Allocator, str: []const u8, separator: u8) ![]u8 {
-	// Trim the provided string.
-	const trimmed = std.mem.trim(u8, str, " \xA0\t\r\n\'\"/\\");
-	// Convert UTF-8 string to ASCII.
-	const result = try anyascii.utf8ToAscii(allocator, trimmed);
+	// Convert the provided UTF-8 string to ASCII.
+	const fullResult = try anyascii.utf8ToAscii(allocator, str);
+	const startShift = fullResult.len - std.mem.trimLeft(u8, fullResult, valuesToStrip).len;
+	const endShift = fullResult.len - std.mem.trimRight(u8, fullResult, valuesToStrip).len;
+	const result = fullResult[startShift..fullResult.len - endShift];
 
 	// Check each char to remove them / replace them by their slugged version if needed.
 	var previousIsSeparator = true; // Setting it to true at start forbids the result to start with a separator.
 	var shift: usize = 0;
 	for (0..result.len, result) |i, char| {
-		if (char == ' ' or char == '\xA0' or char == '\t' or char == '\r' or char == '\n' or char == '\'' or char == '"' or char == '/' or char == '\\') {
+		if (char == ' ' or char == '\t' or char == '\r' or char == '\n' or char == '\'' or char == '"' or char == '/' or char == '\\') {
 			// Whitespace-like character: replace it by a dash, or remove it if the previous character is a dash.
 			if (!previousIsSeparator) {
-				result[i - shift] = separator;
+				fullResult[i - shift] = separator;
 				previousIsSeparator = true;
 			} else {
 				// To remove the current character, we just shift all future written characters.
@@ -26,7 +30,7 @@ pub fn slugifySeparator(allocator: std.mem.Allocator, str: []const u8, separator
 			// In the general case, we keep alphanumeric characters and all the rest is shifted.
 			if (std.ascii.isAlphanumeric(char)) {
 				// Convert the ASCII character to its lowercased version.
-				result[i - shift] = std.ascii.toLower(char);
+				fullResult[i - shift] = std.ascii.toLower(char);
 				previousIsSeparator = false;
 			} else {
 				shift += 1;
@@ -35,12 +39,18 @@ pub fn slugifySeparator(allocator: std.mem.Allocator, str: []const u8, separator
 	}
 
 	// If we removed characters, free the remaining unused memory.
-	if (shift > 0) {
-		_ = allocator.resize(result, result.len - shift);
+	if (shift > 0 or startShift > 0 or endShift > 0) {
+		if (!allocator.resize(fullResult, result.len - shift)) {
+			// In case of a failed resize, reallocate.
+			defer allocator.free(fullResult);
+			const resultAlloc = try allocator.alloc(u8, result.len - shift);
+			@memcpy(resultAlloc, fullResult[0..result.len - shift]);
+			return resultAlloc;
+		}
 	}
 
 	// Return the result without the shifted characters.
-	return result[0..result.len - shift];
+	return fullResult[0..result.len - shift];
 }
 
 /// Convert the provided string to a slugged version of it with the default '-' separator.
@@ -52,6 +62,7 @@ test slugify {
 	try testSlugify("this-is-a-test", "   This is a test.\t\n");
 	try testSlugify("something-else", "SôMÈThing   \t    ÉLSÈ");
 	try testSlugify("slugify-a-string", "𝒔𝒍𝒖𝒈𝒊𝒇𝒚 𝒂 𝒔𝒕𝒓𝒊𝒏𝒈");
+	try testSlugify("a", "à ");
 
 	try testSlugify("blosse-shenzhen", "Blöße 深圳");
 	try testSlugify("qiyu-xian", "埼玉 県");
