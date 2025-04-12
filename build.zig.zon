@@ -1,18 +1,20 @@
 .{
-    .name = "zlugify",
-    .version = "1.0.1",
+	.name = .zlugify,
+	.version = "1.1.0",
 
-    .dependencies = .{
-        .@"anyascii.zig" = .{
-            .url = "https://code.zeptotech.net/zedd/anyascii.zig/archive/v1.1.1.tar.gz",
-            .hash = "1220800d403fc841a4c7b9d09ae8759ae28adff05de33836a3f69f02e8e0ac77bae9",
-        },
-    },
+	.fingerprint = 0x60f9ca2959523881,
 
-    .paths = .{
-        "build.zig",
-        "build.zig.zon",
-        "src",
-        "README.md",
-    },
+	.dependencies = .{
+		.anyascii = .{
+			.url = "https://code.zeptotech.net/zedd/anyascii.zig/archive/v1.2.0.tar.gz",
+			.hash = "anyascii-1.2.0-rvK7q3iGFABchFPwDMdB5tpj716jR3mukBiuMT-PdD5-",
+		},
+	},
+
+	.paths = .{
+		"build.zig",
+		"build.zig.zon",
+		"src",
+		"README.md",
+	},
 }

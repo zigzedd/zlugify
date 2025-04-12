@@ -4,8 +4,8 @@ pub fn build(b: *std.Build) void {
 	const target = b.standardTargetOptions(.{});
 	const optimize = b.standardOptimizeOption(.{});
 
-	// Add anyascii.zig dependency.
-	const anyascii = b.dependency("anyascii.zig", .{
+	// Add anyascii dependency.
+	const anyascii = b.dependency("anyascii", .{
 		.target = target,
 		.optimize = optimize,
 	});
@@ -16,15 +16,15 @@ pub fn build(b: *std.Build) void {
 		.target = target,
 		.optimize = optimize,
 	});
+	// Add anyascii dependency.
 	zlugify.addImport("anyascii", anyascii.module("anyascii"));
 
 	// Library unit tests.
 	const lib_unit_tests = b.addTest(.{
-		.root_source_file = b.path("src/lib.zig"),
+		.root_module = zlugify,
 		.target = target,
 		.optimize = optimize,
 	});
-	lib_unit_tests.root_module.addImport("anyascii", anyascii.module("anyascii"));
 	const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
 	const test_step = b.step("test", "Run unit tests.");
